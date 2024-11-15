@@ -1,0 +1,14 @@
+{
+	"name": "zeppelin",
+	"scripts": {
+		"dev": "bun run --hot src/index.ts",
+		"check": "biome check --write ."
+	},
+	"dependencies": {
+		"hono": "^4.6.10"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"bun-types": "latest"
+	}
+}
