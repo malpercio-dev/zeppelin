@@ -1,0 +1,23 @@
+{
+  "name": "label-server",
+  "version": "0.0.1",
+  "type": "module",
+  "module": "./src/index.ts",
+  "dependencies": {
+    "@atcute/cbor": "^1.0.6",
+    "@atcute/client": "^2.0.4",
+    "@atcute/ozone": "^1.0.6",
+    "@libsql/client": "^0.14.0",
+    "@noble/curves": "^1.6.0",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.36.3",
+    "hono": "^4.6.10",
+    "uint8arrays": "^5.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/bun": "^1.1.13",
+    "bun-types": "latest",
+    "drizzle-kit": "^0.28.1"
+  }
+}

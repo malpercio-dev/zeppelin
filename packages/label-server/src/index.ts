@@ -10,7 +10,7 @@ import type { ServerWebSocket } from 'bun';
 import type { Context, HonoRequest } from 'hono';
 import type { WSContext } from 'hono/ws';
 import type { StatusCode } from 'hono/utils/http-status';
-import type { LabelDatabase } from '..';
+import type { BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
 import type { LabelInsert } from './db/schema';
 
 import { Hono } from 'hono';
@@ -44,7 +44,7 @@ export class LabelerServer {
   #signingKey: Uint8Array;
 
   constructor(
-    private db: LabelDatabase,
+    private db: BunSQLiteDatabase,
     private did: At.DID,
     signingKey: string,
   ) {

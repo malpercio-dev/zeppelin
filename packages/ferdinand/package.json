@@ -1,0 +1,24 @@
+{
+  "name": "ferdinand",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "check": "biome check --write .",
+    "migrate:dev": "bunx drizzle-kit push",
+    "migrate:generate": "bunx drizzle-kit generate",
+    "migrate": "bunx drizzle-kit migrate"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.36.3",
+    "hono": "^4.6.10",
+    "uint8arrays": "^5.1.0",
+    "label-server": "0.0.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/bun": "^1.1.13",
+    "bun-types": "latest",
+    "drizzle-kit": "^0.28.1"
+  }
+}
