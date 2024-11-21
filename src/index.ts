@@ -6,6 +6,9 @@ import { LabelerServer } from './label-server';
 
 // biome-ignore lint/style/noNonNullAssertion: <explanation>
 const sqlite = new Database(process.env.DB_FILE_NAME!);
+
+// enable WAL mode
+sqlite.exec("PRAGMA journal_mode = WAL;");
 const db = drizzle({ client: sqlite });
 
 export type LabelDatabase = typeof db;
