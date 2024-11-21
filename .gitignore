@@ -175,3 +175,6 @@ dist
 .DS_Store
 
 *.sqlite
+*.db
+*.db-shm
+*.db-wal

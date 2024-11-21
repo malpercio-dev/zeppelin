@@ -10,7 +10,9 @@
   "dependencies": {
     "@atcute/cbor": "^1.0.6",
     "@atcute/client": "^2.0.4",
+    "@atcute/ozone": "^1.0.6",
     "@libsql/client": "^0.14.0",
+    "@noble/curves": "^1.6.0",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.36.3",
     "hono": "^4.6.10",
