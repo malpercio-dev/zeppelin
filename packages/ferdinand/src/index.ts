@@ -3,6 +3,7 @@ import { Database } from 'bun:sqlite';
 import { drizzle } from 'drizzle-orm/bun-sqlite';
 import { Hono } from 'hono';
 import { LabelerServer } from 'label-server';
+import { Aerostream } from 'aerostream';
 
 // biome-ignore lint/style/noNonNullAssertion: <explanation>
 const sqlite = new Database(process.env.DB_FILE_NAME!);
@@ -19,6 +20,9 @@ const labelerServer = new LabelerServer(
   // biome-ignore lint/style/noNonNullAssertion: <explanation>
   process.env.SIGNING_KEY!,
 );
+const aerostream = new Aerostream({
+  wantedDids: [process.env.DID]
+})
 
 app.route('/labels', labelerServer.app);
 

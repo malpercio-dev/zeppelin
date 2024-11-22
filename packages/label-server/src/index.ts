@@ -1,7 +1,6 @@
 import '@atcute/ozone/lexicons';
 import type {
   At,
-  ComAtprotoLabelDefs,
   ComAtprotoLabelQueryLabels,
   ToolsOzoneModerationEmitEvent,
 } from '@atcute/client/lexicons';
@@ -12,10 +11,11 @@ import type { WSContext } from 'hono/ws';
 import type { StatusCode } from 'hono/utils/http-status';
 import type { BunSQLiteDatabase } from 'drizzle-orm/bun-sqlite';
 import type { LabelInsert } from './db/schema';
+import type { SavedLabel, SignedLabel, UnsignedLabel } from '@skyware/labeler';
 
 import { Hono } from 'hono';
 import { createBunWebSocket } from 'hono/bun';
-import { encode as cborEncode, toBytes } from '@atcute/cbor';
+import { encode as cborEncode } from '@atcute/cbor';
 import { concat as ui8Concat } from 'uint8arrays';
 import * as ui8 from 'uint8arrays';
 import { and, gt, inArray, like, or } from 'drizzle-orm';
@@ -24,11 +24,9 @@ import { p256 } from '@noble/curves/p256';
 import { secp256k1 as k256 } from '@noble/curves/secp256k1';
 import { sha256 } from '@noble/hashes/sha256';
 import { labels } from './db/schema';
+import { formatLabel, labelIsSigned, signLabel } from '@skyware/labeler';
 
-const INVALID_SIGNING_KEY_ERROR = `Make sure to provide a private signing key, not a public key.
-
-If you don't have a key, generate and set one using the \`npx @skyware/labeler setup\` command or the \`import { plcSetupLabeler } from "@skyware/labeler/scripts"\` function.
-For more information, see https://skyware.js.org/guides/labeler/introduction/getting-started/`;
+const INVALID_SIGNING_KEY_ERROR = "Please provide a signing key";
 
 export class LabelerServer {
   /** The Hono app for mounting the LabelerServer */
@@ -63,8 +61,14 @@ export class LabelerServer {
 
     const that = this;
 
-    this.app.get('/xrpc/com.atproto.label.queryLabels', this.queryLabelsHandler);
-    this.app.post('/xrpc/tools.ozone.moderation.emitEvent', this.emitEventHandler);
+    this.app.get(
+      '/xrpc/com.atproto.label.queryLabels',
+      this.queryLabelsHandler,
+    );
+    this.app.post(
+      '/xrpc/tools.ozone.moderation.emitEvent',
+      this.emitEventHandler,
+    );
 
     this.app.get(
       '/xrpc/com.atproto.label.subscribeLabels',
@@ -469,7 +473,7 @@ export class LabelerServer {
     const id = Number(result.id);
 
     this.emitLabel(id, signed);
-    return { id, ...signed };
+    return { id, src, uri, cid, val, neg, cts, exp, sig: sig.buffer as ArrayBuffer };
   }
 
   /**
@@ -528,58 +532,8 @@ export function excludeNullish<T extends Record<PropertyKey, unknown>>(
   ) as never;
 }
 
-/**********/
-
-export type UnsignedLabel = Omit<ComAtprotoLabelDefs.Label, 'sig'>;
-export type SignedLabel = UnsignedLabel & { sig: Uint8Array };
-export type FormattedLabel = UnsignedLabel & { sig?: At.Bytes };
-export type SavedLabel = UnsignedLabel & { sig: Uint8Array; id: number };
-
-const LABEL_VERSION = 1;
-
-export function formatLabel(
-  label: UnsignedLabel & { sig?: ArrayBuffer | Uint8Array | At.Bytes },
-): FormattedLabel {
-  const sig =
-    label.sig instanceof ArrayBuffer
-      ? toBytes(new Uint8Array(label.sig))
-      : label.sig instanceof Uint8Array
-        ? toBytes(label.sig)
-        : label.sig;
-  if (!sig || !('$bytes' in sig)) {
-    throw new Error(
-      `Expected sig to be an object with base64 $bytes, got ${sig}`,
-    );
-  }
-  return excludeNullish({
-    ...label,
-    ver: LABEL_VERSION,
-    neg: !!label.neg,
-    sig,
-  });
-}
-
-export function signLabel(
-  label: UnsignedLabel,
-  signingKey: Uint8Array,
-): SignedLabel {
-  const toSign = formatLabelCbor(label);
-  const bytes = cborEncode(toSign);
-  const sig = k256Sign(signingKey, bytes);
-  return { ...toSign, sig };
-}
-
-function formatLabelCbor(label: UnsignedLabel): UnsignedLabel {
-  return excludeNullish({ ...label, ver: LABEL_VERSION, neg: !!label.neg });
-}
-
-export function labelIsSigned<T extends UnsignedLabel>(
-  label: T,
-): label is T & SignedLabel {
-  return 'sig' in label && label.sig !== undefined;
-}
-
-/*******/
+/*** The below is from @skyware/labeler    ***/
+/*** only needed for one function, verifyJwt */
 
 const P256_DID_PREFIX = new Uint8Array([0x80, 0x24]);
 const SECP256K1_DID_PREFIX = new Uint8Array([0xe7, 0x01]);
