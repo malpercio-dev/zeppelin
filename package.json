@@ -5,7 +5,7 @@
     "packages/ferdinand",
     "packages/label-server",
     "packages/aerostream",
-    "packages/leaflet"
+    "packages/marquee"
   ],
   "scripts": {
     "clean": "rm -rf node_modules packages/ferdinand/node_modules packages/label-server/node_modules packages/aerostream/node_modules packages/leaflet/node_modules bun.lockb packages/ferdinand/bun.lockb packages/label-server/bun.lockb packages/aerostream/bun.lockb packages/leaflet/bun.lockb"

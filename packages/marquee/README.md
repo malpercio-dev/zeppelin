@@ -1,4 +1,4 @@
-# leaflet
+# marquee
 
 To install dependencies:
 
